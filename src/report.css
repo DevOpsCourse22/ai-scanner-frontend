@@ -1,0 +1,519 @@
+/* The report's findings list and the file-by-file progress tree.
+   Carried over from the first UI (their logic did not change), restyled
+   through the tokens in index.css. */
+
+/* ----------------------------------------------------------- findings -- */
+/* Severity is never colour alone: every circle, bar and pill also carries
+   its word, and the chart has a legend. Text stays in ink tokens; only the
+   marks wear the level colours. */
+
+.findings { display: flex; flex-direction: column; gap: 18px; }
+
+.fill-high { background: var(--level-high); }
+.fill-medium { background: var(--level-medium); }
+.fill-low { background: var(--level-low); }
+
+/* --- 1. the three circles --- */
+.levels {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+.level {
+  --c: var(--level-low);
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 18px 8px 14px;
+  font: inherit; color: var(--ink); text-align: center;
+  background: var(--surface-2);
+  border: 1px solid var(--line); border-radius: var(--radius);
+  cursor: pointer;
+  transition: border-color .15s, background .15s, transform .15s;
+}
+.level-high { --c: var(--level-high); }
+.level-medium { --c: var(--level-medium); }
+.level:hover { border-color: var(--c); }
+.level.is-on {
+  background: var(--surface);
+  border-color: var(--c);
+  box-shadow: inset 0 0 0 1px var(--c);
+}
+.level-ring {
+  display: grid; place-items: center;
+  width: 84px; height: 84px; border-radius: 50%;
+  background: color-mix(in srgb, var(--c) 14%, var(--surface));
+  border: 6px solid var(--c);
+  margin-bottom: 6px;
+  transition: transform .25s var(--ease-out);
+}
+.level:active .level-ring { transform: scale(0.96); }
+.level.is-zero .level-ring {
+  border-color: color-mix(in srgb, var(--c) 35%, var(--line));
+  background: var(--surface);
+}
+.level-count {
+  font-family: var(--display); font-weight: 700;
+  font-size: 30px; line-height: 1; letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+.level-name { font-family: var(--display); font-weight: 650; font-size: 18px; }
+.level-sub { font-size: 13px; color: var(--muted); display: flex; flex-direction: column; }
+.level-note { color: var(--faint); }
+@media (max-width: 559px) {
+  .levels { gap: 8px; }
+  .level { padding: 14px 4px 12px; }
+  .level-ring { width: 64px; height: 64px; border-width: 5px; }
+  .level-count { font-size: 24px; }
+  .level-name { font-size: 16px; }
+  .level-note { display: none; }
+}
+
+/* --- gaps: what the report could not check --- */
+.gaps { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: -6px; }
+.gap-link {
+  font: inherit; font-size: 14px; font-weight: 600;
+  background: none; border: 0; padding: 2px 0; cursor: pointer;
+  color: var(--muted); text-decoration: underline; text-underline-offset: 3px;
+  text-decoration-color: var(--line-strong);
+}
+.gap-link::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 7px; vertical-align: 1px; }
+.gap-failed::before { background: var(--danger); }
+.gap-hidden::before { background: var(--level-medium); }
+.gap-link:hover, .gap-link.is-on { color: var(--ink); text-decoration-color: currentColor; }
+.gap-panel {
+  display: flex; flex-direction: column; gap: 8px;
+  padding: 14px; border-radius: var(--radius-sm);
+  background: var(--surface-2); border: 1px solid var(--line);
+  font-size: 14px; color: var(--muted);
+}
+
+/* --- 2. the chart --- */
+.file-chart {
+  position: relative; margin: 0;
+  padding: 16px; border: 1px solid var(--line); border-radius: var(--radius);
+}
+.chart-head {
+  display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between;
+  gap: 6px 16px; margin-bottom: 12px;
+}
+.chart-title { font-family: var(--display); font-weight: 650; font-size: 16px; }
+.chart-legend { display: flex; gap: 14px; font-size: 13px; color: var(--muted); }
+.legend-item { display: inline-flex; align-items: center; gap: 6px; }
+.legend-swatch { display: inline-block; width: 10px; height: 10px; border-radius: 3px; flex: none; }
+.chart-rows { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.chart-row {
+  display: grid;
+  grid-template-columns: minmax(90px, 34%) 1fr 2.5em;
+  align-items: center; gap: 12px;
+  width: 100%; padding: 6px 8px; border-radius: 8px;
+  font: inherit; color: var(--ink); text-align: left;
+  background: none; border: 0; cursor: pointer;
+}
+.chart-row:hover { background: var(--surface-2); }
+.chart-row.is-on { background: var(--brand-soft); }
+.chart-file {
+  font-family: var(--mono); font-size: 13px; color: var(--muted);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.chart-row.is-on .chart-file { color: var(--ink); }
+.chart-bar { display: flex; gap: 2px; height: 14px; min-width: 6px; }
+.chart-seg { height: 100%; min-width: 4px; }
+.chart-seg:first-child { border-radius: 4px 0 0 4px; }
+.chart-seg:last-child { border-radius: 0 4px 4px 0; }
+.chart-seg:only-child { border-radius: 4px; }
+.chart-total { font-size: 14px; font-weight: 650; font-variant-numeric: tabular-nums; text-align: right; }
+.chart-foot { margin-top: 8px; font-size: 13px; color: var(--faint); }
+.chart-tip {
+  position: absolute; z-index: 5; pointer-events: none;
+  transform: translate(-50%, calc(-100% - 10px));
+  background: var(--ink); color: var(--paper);
+  font-size: 13px; padding: 6px 10px; border-radius: 8px; white-space: nowrap;
+  max-width: 90%; overflow: hidden; text-overflow: ellipsis;
+}
+@media (max-width: 559px) {
+  .file-chart { padding: 12px 8px; }
+  .chart-row { grid-template-columns: 38% 1fr 2em; gap: 8px; padding: 6px 4px; }
+}
+
+/* --- 3. the list --- */
+.finding-tools { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.finding-search {
+  flex: 1 1 240px; min-width: 0; min-height: 42px;
+  font: inherit; font-size: 15px; color: var(--ink);
+  background: var(--surface); border: 1px solid var(--line-strong);
+  border-radius: 10px; padding: 8px 12px;
+}
+.finding-search:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-soft); }
+.source-filter { display: flex; gap: 4px; }
+.finding-filters {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+  font-size: 14px; color: var(--muted); margin-top: -6px;
+}
+.filter-chip {
+  font-size: 13px; font-weight: 600; color: var(--ink);
+  padding: 1px 9px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line);
+}
+.finding-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+
+.finding {
+  --c: var(--level-low);
+  background: var(--surface); border: 1px solid var(--line);
+  border-left: 4px solid var(--c);
+  border-radius: var(--radius-sm); overflow: hidden;
+}
+.finding-high { --c: var(--level-high); }
+.finding-medium { --c: var(--level-medium); }
+.finding[open] { border-color: var(--line-strong); border-left-color: var(--c); box-shadow: var(--shadow); }
+.finding > summary {
+  cursor: pointer; list-style: none;
+  display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; align-items: baseline;
+  padding: 12px 14px;
+}
+.finding > summary::-webkit-details-marker { display: none; }
+.finding > summary:hover { background: var(--surface-2); }
+.level-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 13px; font-weight: 650; color: var(--ink);
+  padding: 2px 9px 2px 7px; border-radius: 999px;
+  background: color-mix(in srgb, var(--c, var(--level-low)) 12%, var(--surface));
+}
+.pill-high { --c: var(--level-high); }
+.pill-medium { --c: var(--level-medium); }
+.pill-low { --c: var(--level-low); }
+.finding-title { font-size: 15px; font-weight: 600; min-width: 0; }
+.finding-meta {
+  grid-column: 2; display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline;
+}
+.finding-loc { font-family: var(--mono); font-size: 12.5px; color: var(--muted); overflow-wrap: anywhere; }
+.finding-source {
+  font-size: 12px; font-weight: 600; color: var(--brand);
+  padding: 0 7px; border-radius: 5px; background: var(--brand-soft);
+}
+.finding-source.is-scanner { color: var(--muted); background: var(--surface-2); }
+.finding-body {
+  padding: 2px 14px 14px; font-size: 15px; color: var(--ink);
+  display: flex; flex-direction: column; gap: 10px;
+  animation: finding-open .2s var(--ease-out);
+}
+@keyframes finding-open { from { opacity: 0; transform: translateY(-3px); } }
+.finding-fix {
+  padding: 10px 12px; border-radius: 8px;
+  background: var(--brand-soft);
+}
+.finding-fix-label { display: block; font-size: 13px; font-weight: 650; color: var(--brand); margin-bottom: 2px; }
+.show-more { align-self: center; }
+@media (max-width: 559px) {
+  .finding > summary { grid-template-columns: 1fr; }
+  .finding-meta { grid-column: 1; }
+}
+
+.findings-empty {
+  text-align: center; padding: 28px 16px;
+  border: 1.5px dashed var(--line-strong); border-radius: var(--radius);
+}
+.findings-empty-title { font-family: var(--display); font-weight: 650; font-size: 21px; }
+
+.failed-file {
+  display: flex; flex-direction: column; gap: 3px;
+  padding: 9px 13px; background: var(--surface);
+  border: 1px solid var(--border); border-left: 3px solid var(--danger);
+  border-radius: var(--radius-sm);
+}
+.failed-file-hidden { border-left-color: var(--sev-medium); }
+.failed-name { font-family: var(--mono); font-size: 13px; overflow-wrap: anywhere; }
+.failed-reason { font-size: 12.5px; color: var(--muted); }
+
+details.advanced > summary {
+  cursor: pointer; list-style: none; font-size: 13px; font-weight: 600;
+  color: var(--muted); display: inline-flex; align-items: center; gap: 7px;
+  padding: 4px 0;
+}
+details.advanced > summary::-webkit-details-marker { display: none; }
+details.advanced > summary::before {
+  content: "›"; font-size: 15px; line-height: 1; transition: transform .2s;
+}
+details.advanced[open] > summary::before { transform: rotate(90deg); }
+details.advanced > summary:hover { color: var(--ink); }
+details.advanced .field { margin-top: 10px; }
+
+/* ---------- file-by-file progress tree ---------- */
+/* A flat, dense list on purpose: the point is to scan 120+ rows for the
+   one that is running or the few that failed, not to admire the layout. */
+
+.tree-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.tree-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.75rem;
+  justify-content: space-between;
+}
+
+.tree-summary {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.tree {
+  margin-top: 0.5rem;
+  max-height: 24rem;      /* a long repo scrolls inside the card, not the page */
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  font-family: var(--mono);
+  font-size: 0.8rem;
+}
+
+.tree-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  text-align: left;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+}
+
+.tree-folder {
+  cursor: pointer;
+  color: var(--muted);
+}
+
+.tree-folder:hover {
+  background: var(--surface);
+}
+
+.tree-mark {
+  width: 1em;
+  flex: none;
+  text-align: center;
+}
+
+.tree-name {
+  flex: 1 1 auto;
+  min-width: 7em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Two fixed right-hand columns - size, then counts - so they line up down
+   the whole tree instead of wandering with each row's text. */
+.tree-lines,
+.tree-tail {
+  flex: none;
+  text-align: right;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.tree-lines {
+  margin-left: auto;
+  min-width: 7.5em;
+  color: var(--faint);
+}
+
+.tree-tail {
+  min-width: 14em;
+  margin-left: 0.75rem;
+}
+
+/* On a phone the file name matters most: line counts go, and the counts
+   column only takes the room it needs. */
+@media (max-width: 559px) {
+  .tree-lines {
+    display: none;
+  }
+  .tree-tail {
+    min-width: 0;
+    margin-left: auto;
+  }
+}
+
+.tree-count,
+.tree-badge,
+.tree-badge-failed {
+  color: var(--faint);
+}
+
+/* Finding count on a finished file - the number only, never the findings. */
+.tree-badge {
+  color: var(--sev-medium);
+}
+
+.tree-badge-failed,
+.tree-count-failed {
+  color: var(--danger);
+}
+
+/* Nothing flagged, and every applicable check covered the file. */
+.tree-no-findings {
+  color: var(--ok);
+}
+
+/* Nothing flagged, but some check did not fully cover the file - amber,
+   because "no findings" alone would overstate it. */
+.tree-no-findings-partial {
+  color: var(--sev-medium);
+}
+
+.tree-done .tree-mark { color: var(--ok); }
+.tree-failed .tree-mark { color: var(--danger); }
+.tree-pending .tree-mark { color: var(--faint); }
+.tree-pending .tree-name { color: var(--muted); }
+
+/* A folder whose every file was reviewed reads at full strength (white in
+   the dark theme, near-black in the light one); unfinished folders stay
+   muted, so what is left stands out without reading every row. */
+.tree-folder.tree-done .tree-name {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+/* Any file that could not be reviewed, and every folder above it, is red by
+   NAME as well as by mark - a failure deep in a collapsed folder is still
+   visible from the top. */
+.tree-failed .tree-name {
+  color: var(--danger);
+}
+
+/* ---------- live timing and scanner status above the tree ---------- */
+
+.tree-open {
+  align-self: flex-start;
+}
+
+.tree-eta {
+  margin: 0.5rem 0 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.tree-current {
+  margin-top: 0.5rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: var(--radius-sm);
+  background: var(--accent-soft);
+  font-size: 0.8rem;
+}
+
+.tree-current-line {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.tree-current-mark {
+  flex: none;
+  color: var(--accent);
+}
+
+.tree-current-path {
+  font-family: var(--mono);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.tree-current-size {
+  flex: none;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.tree-current-time {
+  margin-left: auto;
+  flex: none;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.tree-current-bar {
+  margin-top: 0.35rem;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--border);
+  overflow: hidden;
+}
+
+.tree-current-fill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 1s linear;
+}
+
+.scan-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+  font-size: 0.78rem;
+}
+
+.scan-item {
+  padding: 0.15rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.scan-ok { color: var(--ok); }
+
+.scan-errors { color: var(--sev-medium); }
+
+.scan-failed {
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+.scan-unknown {
+  color: var(--sev-medium);
+  border-color: var(--sev-medium);
+  white-space: normal;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tree-current-fill { transition: none; }
+}
+
+.tree-in_progress {
+  background: var(--accent-soft);
+}
+
+.tree-in_progress .tree-mark {
+  color: var(--accent);
+  animation: tree-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes tree-pulse {
+  50% { opacity: 0.25; }
+}
+
+/* Someone who has asked for less motion should not get a pulsing dot for
+   the next several hours. */
+@media (prefers-reduced-motion: reduce) {
+  .tree-in_progress .tree-mark { animation: none; }
+}
+
+/* Screen-reader-only text: the state words behind the coloured marks. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}

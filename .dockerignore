@@ -1,0 +1,7 @@
+# Keep the build context small and reproducible: dependencies are installed
+# inside the image from package-lock.json, and dist/ is built there too.
+node_modules
+dist
+*.log
+.env
+.env.*

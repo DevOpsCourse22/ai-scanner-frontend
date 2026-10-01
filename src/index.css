@@ -1,0 +1,234 @@
+/* Design tokens. Components never hard-code a colour: light is the base on
+   :root, dark only redefines tokens (for the system setting, and for an
+   explicit choice in Settings), so both themes stay in step.
+
+   The idea the palette comes from: a reviewer's desk. Pine-green ink for
+   the brand and actions, a highlighter yellow-green for the one thing
+   that is being marked right now (the progress ink, the logo), amber for
+   paused, brick for stopped. */
+
+:root {
+  --paper: #eef2ec;
+  --surface: #ffffff;
+  --surface-2: #f5f7f3;
+  --line: #d9e0d6;
+  --line-strong: #bcc7b8;
+  --ink: #15201b;
+  --muted: #53625a;
+  --faint: #7f8c85;
+
+  --brand: #1d4f45;
+  --brand-hover: #153c34;
+  --brand-ink: #e9f1ec;
+  --brand-soft: #e1ece6;
+
+  --marker: #d6ee4a;
+  --marker-deep: #b9d22a;
+  --marker-ink: #1b2606;
+
+  --paused: #a8660e;
+  --paused-soft: #f8ecd6;
+  --danger: #b0372b;
+  --danger-soft: #f8e5e1;
+  --ok: #2d7a4c;
+
+  --sev-critical: #b0372b;
+  --sev-high: #bb5f17;
+  --sev-medium: #96780f;
+  --sev-low: #2f63b4;
+  --sev-info: #66726b;
+
+  /* The three levels the report shows (High / Medium / Low), validated as
+     a set with the dataviz palette checker: lightness band, colour-blind
+     separation and contrast against --surface. Change them together. */
+  --level-high: #c2372a;
+  --level-medium: #d08712;
+  --level-low: #3567c0;
+
+  /* Names the carried-over report and tree styles use. */
+  --border: var(--line);
+  --border-strong: var(--line-strong);
+  --accent: var(--brand);
+  --accent-soft: var(--brand-soft);
+  --accent-ink: var(--brand-ink);
+
+  --radius: 16px;
+  --radius-sm: 9px;
+  --shadow: 0 1px 0 rgba(21, 32, 27, 0.04), 0 12px 32px -18px rgba(21, 32, 27, 0.28);
+
+  --display: "Bricolage Grotesque Variable", "Bricolage Grotesque", system-ui, sans-serif;
+  --sans: "Instrument Sans Variable", "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono Variable", "JetBrains Mono", ui-monospace, "Cascadia Code", Consolas, monospace;
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0f1513;
+    --surface: #161e1b;
+    --surface-2: #1b2521;
+    --line: #28342f;
+    --line-strong: #37463f;
+    --ink: #e4ebe6;
+    --muted: #9caba3;
+    --faint: #6f7e76;
+
+    --brand: #82c9b3;
+    --brand-hover: #9bd9c5;
+    --brand-ink: #0f1513;
+    --brand-soft: #1c302a;
+
+    --marker: #cde44c;
+    --marker-deep: #b3cb33;
+    --marker-ink: #1b2606;
+
+    --paused: #e3a64a;
+    --paused-soft: #33281a;
+    --danger: #ef7d6e;
+    --danger-soft: #3a2220;
+    --ok: #6ccb93;
+
+    --sev-critical: #ef7d6e;
+    --sev-high: #eb9a55;
+    --sev-medium: #d9bf52;
+    --sev-low: #7aa7ee;
+    --sev-info: #9caba3;
+
+    --level-high: #d03d3a;
+    --level-medium: #c2891a;
+    --level-low: #4a82de;
+
+    --shadow: 0 1px 0 rgba(0, 0, 0, 0.3), 0 16px 36px -20px rgba(0, 0, 0, 0.7);
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --paper: #0f1513;
+  --surface: #161e1b;
+  --surface-2: #1b2521;
+  --line: #28342f;
+  --line-strong: #37463f;
+  --ink: #e4ebe6;
+  --muted: #9caba3;
+  --faint: #6f7e76;
+
+  --brand: #82c9b3;
+  --brand-hover: #9bd9c5;
+  --brand-ink: #0f1513;
+  --brand-soft: #1c302a;
+
+  --marker: #cde44c;
+  --marker-deep: #b3cb33;
+  --marker-ink: #1b2606;
+
+  --paused: #e3a64a;
+  --paused-soft: #33281a;
+  --danger: #ef7d6e;
+  --danger-soft: #3a2220;
+  --ok: #6ccb93;
+
+  --sev-critical: #ef7d6e;
+  --sev-high: #eb9a55;
+  --sev-medium: #d9bf52;
+  --sev-low: #7aa7ee;
+  --sev-info: #9caba3;
+
+  --level-high: #d03d3a;
+  --level-medium: #c2891a;
+  --level-low: #4a82de;
+
+  --shadow: 0 1px 0 rgba(0, 0, 0, 0.3), 0 16px 36px -20px rgba(0, 0, 0, 0.7);
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 16px/1.55 var(--sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--display);
+  text-wrap: balance;
+}
+
+p {
+  margin: 0;
+  text-wrap: pretty;
+}
+
+a {
+  color: var(--brand);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+code,
+.mono {
+  font-family: var(--mono);
+  font-size: 0.86em;
+}
+
+code {
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  padding: 1px 5px;
+  overflow-wrap: anywhere;
+}
+
+img {
+  max-width: 100%;
+}
+
+/* Keyboard users must always see where they are. */
+:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+::selection {
+  background: var(--marker);
+  color: var(--marker-ink);
+}
+
+/* Motion: "Less" in Settings, or the system's reduced-motion setting
+   unless Settings says "Full", turns animation off everywhere. */
+:root[data-motion="reduce"] *,
+:root[data-motion="reduce"] *::before,
+:root[data-motion="reduce"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-motion="full"]) *,
+  :root:not([data-motion="full"]) *::before,
+  :root:not([data-motion="full"]) *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
