@@ -494,6 +494,15 @@ export interface AiTestResult {
 
 async function jsonOrThrow<T>(res: Response, fallback: string): Promise<T> {
   if (!res.ok) throw new ApiError(res.status, await errorDetail(res, fallback));
+  // A web page instead of JSON means the request never reached a gateway
+  // that knows this route (an older gateway build, or a dev server with no
+  // gateway behind it). Say that, instead of a JSON parse error.
+  if (!(res.headers.get("content-type") ?? "").includes("json")) {
+    throw new ApiError(
+      res.status,
+      `The gateway at ${GATEWAY_URL || "this address"} answered with a web page, not data. It is probably an older version without this feature: redeploy the gateway.`,
+    );
+  }
   return res.json();
 }
 
