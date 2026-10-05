@@ -1,7 +1,15 @@
-# Keep the build context small and reproducible: dependencies are installed
-# inside the image from package-lock.json, and dist/ is built there too.
-node_modules
-dist
-*.log
+# No image is built from the repository root any more: every service has its
+# own folder and its own build context (backend/, frontend/, mcp-server/).
+# Kept only so an accidental `docker build .` here stays small.
+.git/
+.venv/
+venv/
+reports/
+docs/
+.claude/
+.pytest_cache/
+**/__pycache__/
+**/*.pyc
+**/*.egg-info/
+**/node_modules/
 .env
-.env.*
