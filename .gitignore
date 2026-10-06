@@ -1,28 +1,29 @@
-__pycache__/
-*.pyc
-.venv/
-venv/
-*.egg-info/
-build/
-dist/
-.pytest_cache/
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# Review output: reports, their markdown renders, notes, and the
-# <id>.partial.json crash checkpoints. Shared by both front ends.
-reports/
+node_modules
+dist
+dist-ssr
+*.local
 
-# Local secrets for docker compose and the setup scripts.
-# Copy .env.example -> .env; NEVER commit the filled-in copy.
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Local environment files: Vite reads .env* at build time, never commit them.
 .env
-
-# Word/Office lock files (created while a .docx is open).
-~$*
-
-# Export bundles of docs/ for submission — the canonical tree is docs/ itself.
-docs/Zipped/
-docs/Zipped.zip
-
-# Local API config (copy from backend/config/api.example.yaml; holds
-# host-specific values such as the LLM base URL).
-backend/config/api.yaml
-backend/config/api.json
+.env.*
+!.env.example
